@@ -476,12 +476,15 @@ void DefaultSceneLayer::_CreateScene()
 			//monkey1->Add<TriggerVolumeEnterBehaviour>();
 		}
 
-		GameObject::Sptr enemy = scene->CreateGameObject("Enemy");
+		/*GameObject::Sptr enemy = scene->CreateGameObject("Enemy");
 		{
 			enemy->SetPostion(glm::vec3(5.3f, 0.f, 4.f));
 			enemy->SetRotation(glm::vec3(0.f, 0.f, 0.f));
 			
 			EnemyMovement::Sptr enemyMovementComponent = enemy->Add<EnemyMovement>(enemy, 1.f, monkey1);
+			enemyMovementComponent->GetComponent<EnemyMovement>()->setSelf(enemy);
+			enemyMovementComponent->GetComponent<EnemyMovement>()->setSpeed(1.f);
+			enemyMovementComponent->GetComponent<EnemyMovement>()->setTarget(monkey1);
 
 			RenderComponent::Sptr renderer = enemy->Add<RenderComponent>();
 			renderer->SetMesh(monkeyMesh);
@@ -491,7 +494,7 @@ void DefaultSceneLayer::_CreateScene()
 			ICollider::Sptr enemyCollider = BoxCollider::Create();
 			enemyCollider->SetScale(glm::vec3(2.f));
 			physics->AddCollider(enemyCollider);
-		}
+		}*/
 
 		/*GameObject::Sptr ship = scene->CreateGameObject("Fenrir");
 		{

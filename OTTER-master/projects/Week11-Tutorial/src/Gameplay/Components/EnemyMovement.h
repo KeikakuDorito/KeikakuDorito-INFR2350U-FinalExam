@@ -2,17 +2,25 @@
 #include "IComponent.h"
 #include "Gameplay/Physics/RigidBody.h"
 
+
+
+
+
 class EnemyMovement : public Gameplay::IComponent {
 public:
 	typedef std::shared_ptr<EnemyMovement> Sptr;
 
 	std::weak_ptr<Gameplay::IComponent> Panel;
 
-	EnemyMovement(Gameplay::GameObject::Sptr self, float speed, Gameplay::GameObject::Sptr target);
+	EnemyMovement();
 	virtual ~EnemyMovement();
 
 	virtual void Awake() override;
 	virtual void Update(float deltaTime) override;
+
+	void setSelf(Gameplay::GameObject::Sptr self);
+	void setSpeed(float speed);
+	void setTarget(Gameplay::GameObject::Sptr target);
 
 public:
 	virtual void RenderImGui() override;

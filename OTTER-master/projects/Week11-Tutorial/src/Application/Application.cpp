@@ -46,7 +46,7 @@
 #include "Gameplay/Components/Light.h"
 #include "Gameplay/Components/ShadowCamera.h"
 #include "Gameplay/Components/ShipMoveBehaviour.h"
-#include "Gameplay/Components/Enemymovement.h"
+#include "Gameplay/Components/EnemyMovement.h"
 
 // GUI
 #include "Gameplay/Components/GUI/RectTransform.h"
