@@ -50,6 +50,7 @@
 #include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
 #include "Gameplay/Components/EnemyMovement.h"
+#include "Gameplay/Components/CharacterMovement.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -412,7 +413,7 @@ void DefaultSceneLayer::_CreateScene()
 			wall1->SetPostion(glm::vec3(0.0f, 0.0f, 1.5f));
 			RigidBody::Sptr wallPhys1 = wall1->Add<RigidBody>();
 			ICollider::Sptr wall1collider = BoxCollider::Create();
-			wall1collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wall1collider->SetScale(glm::vec3(10.29f, 1.0f, 1.410f));
 			wallPhys1->AddCollider(wall1collider);
 			plane->AddChild(wall1);
 
@@ -422,7 +423,7 @@ void DefaultSceneLayer::_CreateScene()
 			wall2->SetPostion(glm::vec3(0.0f, 0.f, 12.58));
 			RigidBody::Sptr wallPhys2 = wall2->Add<RigidBody>();
 			ICollider::Sptr wall2collider = BoxCollider::Create();
-			wall2collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wall2collider->SetScale(glm::vec3(10.29f, 1.0f, 1.410f));
 			wallPhys2->AddCollider(wall2collider);
 			plane->AddChild(wall2);
 
@@ -433,7 +434,7 @@ void DefaultSceneLayer::_CreateScene()
 			wall3->SetRotation(glm::vec3(0.f, 0.f, -90.f));
 			RigidBody::Sptr wallPhys3 = wall3->Add<RigidBody>();
 			ICollider::Sptr wall3collider = BoxCollider::Create();
-			wall3collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wall3collider->SetScale(glm::vec3(1.0f, 1.59f, 12.230));
 			wallPhys3->AddCollider(wall3collider);
 			plane->AddChild(wall3);
 
@@ -444,7 +445,7 @@ void DefaultSceneLayer::_CreateScene()
 			wall4->SetRotation(glm::vec3(0.f, 0.f, -90.f));
 			RigidBody::Sptr wallPhys4 = wall4->Add<RigidBody>();
 			ICollider::Sptr wall4collider = BoxCollider::Create();
-			wall4collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wall4collider->SetScale(glm::vec3(1.0f, 1.59f, 12.230));
 			wallPhys4->AddCollider(wall4collider);
 			plane->AddChild(wall4);
 		}
@@ -457,6 +458,7 @@ void DefaultSceneLayer::_CreateScene()
 
 			// Add some behaviour that relies on the physics body
 			monkey1->Add<JumpBehaviour>();
+			monkey1->Add<CharacterMovement>();
 
 			// Create and attach a renderer for the monkey
 			RenderComponent::Sptr renderer = monkey1->Add<RenderComponent>();
@@ -469,7 +471,7 @@ void DefaultSceneLayer::_CreateScene()
 			//trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
 			RigidBody::Sptr physics = monkey1->Add<RigidBody>(RigidBodyType::Dynamic);
 			ICollider::Sptr playerCollider = BoxCollider::Create();
-			playerCollider->SetScale(glm::vec3(2.f));
+			playerCollider->SetScale(glm::vec3(1.f));
 			physics->AddCollider(playerCollider);
 			//trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
 

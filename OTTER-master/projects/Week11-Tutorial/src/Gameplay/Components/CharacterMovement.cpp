@@ -45,12 +45,12 @@ void CharacterMovement::Update(float deltaTime)
 {
 	if (InputEngine::IsKeyDown(GLFW_KEY_A))
 	{
-		_body->SetLinearVelocity(glm::vec3(_speed * -1.0f, 0.0f, 0.0f));
+		_body->ApplyImpulse(glm::vec3(_speed * -1.0f, 0.0f, 0.0f));
 		rotation = glm::vec3(0.0f, 0.0f, 0.0f);
 	}
 	if (InputEngine::IsKeyDown(GLFW_KEY_D))
 	{
-		_body->SetLinearVelocity(glm::vec3(_speed, 0.0f, 0.0f));
+		_body->ApplyImpulse(glm::vec3(_speed, 0.0f, 0.0f));
 		rotation = glm::vec3(0.0f, 0.0f, 180.0f);
 	}
 	GetGameObject()->SetRotation(rotation);

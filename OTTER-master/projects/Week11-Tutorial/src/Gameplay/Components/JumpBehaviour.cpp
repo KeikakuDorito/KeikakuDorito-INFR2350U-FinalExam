@@ -38,7 +38,7 @@ JumpBehaviour::Sptr JumpBehaviour::FromJson(const nlohmann::json& blob) {
 }
 
 void JumpBehaviour::Update(float deltaTime) {
-	if (InputEngine::GetKeyState(GLFW_KEY_SPACE) == ButtonState::Pressed && Timing::Current().TimeSinceAppLoad() - timer > 5.0f) {
+	if (InputEngine::GetKeyState(GLFW_KEY_SPACE) == ButtonState::Pressed && Timing::Current().TimeSinceAppLoad() - timer > 1.5f) {
 		_body->ApplyImpulse(glm::vec3(0.0f, 0.0f, _impulse));
 		timer = Timing::Current().TimeSinceAppLoad();
 		Gameplay::IComponent::Sptr ptr = Panel.lock();

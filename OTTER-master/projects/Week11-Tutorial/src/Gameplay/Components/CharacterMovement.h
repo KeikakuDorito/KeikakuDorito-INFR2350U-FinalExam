@@ -19,7 +19,7 @@ public:
 	static CharacterMovement::Sptr FromJson(const nlohmann::json& blob);
 
 protected:
-	float _speed = 15.0f;
-	glm::vec3 rotation = glm::vec3(0.0f);
+	float _speed = 0.25f;
+	glm::vec3 rotation = glm::vec3(0.0f, 0.0f, 180.0f);
 	Gameplay::Physics::RigidBody::Sptr _body;
 };
