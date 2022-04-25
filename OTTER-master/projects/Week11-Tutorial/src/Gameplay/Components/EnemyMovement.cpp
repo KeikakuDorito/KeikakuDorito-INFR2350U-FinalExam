@@ -6,9 +6,6 @@
 #include "Gameplay/InputEngine.h"
 #include <cmath>
 
-
-
-
 void EnemyMovement::Awake(){
 	_body = GetComponent<Gameplay::Physics::RigidBody>();
 	if(_body == nullptr){
@@ -18,18 +15,19 @@ void EnemyMovement::Awake(){
 
 void EnemyMovement::Update(float deltaTime){
 	//if enemy is too close, flee behaviour
-	if(GetDistance(_self->GetPosition(), _target->GetPosition()) < 5.f){
-		movementVector.x = (_target->GetPosition().x - _self->GetPosition().X);
-		movementVector.y = _self->GetPosition().y;
-		movementVector.z = _self->GetPosition().z;
+	if(abs(GetDistance(_self->GetPosition(), _target->GetPosition())) < 1.f){
+		movementVector.x = (_self->GetPosition().x - _target->GetPosition().x);
+		movementVector.y = 0;
+		movementVector.z = 0;
 	}
 	//else go towards player
 	else{
-		movementVector.x = (_self->GetPosition() - _target->GetPosition().x);
-		movementVector.y = _self->GetPosition().y;
-		movementVector.z = _self->GetPosition().z;
+		movementVector.x = (_target->GetPosition().x - _self->GetPosition().x);
+		movementVector.y = 0;
+		movementVector.z = 0;
 	}
 	
+	_body->SetLinearVelocity(movementVector * moveSpeed);
 }
 
 float EnemyMovement::GetDistance(glm::vec3 A, glm::vec3 B){

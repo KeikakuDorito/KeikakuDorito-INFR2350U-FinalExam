@@ -282,7 +282,7 @@ void Application::_RegisterClasses()
 	ComponentManager::RegisterType<ShadowCamera>();
 	ComponentManager::RegisterType<ShipMoveBehaviour>();
 	ComponentManager::RegisterType<CharacterMovement>();
-	//ComponentManager::RegisterType<EnemyMovement>();
+	ComponentManager::RegisterType<EnemyMovement>();
 }
 
 void Application::_Load() {

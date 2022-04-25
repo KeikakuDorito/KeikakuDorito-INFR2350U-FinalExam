@@ -1,9 +1,7 @@
 #pragma once
 #include "IComponent.h"
 #include "Gameplay/Physics/RigidBody.h"
-
-
-
+#include "Gameplay/GameObject.h"
 
 
 class EnemyMovement : public Gameplay::IComponent {
@@ -29,7 +27,7 @@ public:
 	static EnemyMovement::Sptr FromJson(const nlohmann::json& blob);
 
 protected:
-	float moveSpeed;
+	float moveSpeed = 5.f;
 	glm::vec3 movementVector;
 
 	Gameplay::Physics::RigidBody::Sptr _body;

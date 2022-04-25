@@ -91,7 +91,21 @@ void DefaultSceneLayer::OnAppLoad(const nlohmann::json& config) {
 }
 
 void DefaultSceneLayer::OnUpdate() {
+	//Application& app = Application::Get();
+	//_currentScene = app.CurrentScene();
 
+	/*_currentScene->FindObjectByName("Player")->GetGameObject()->SetPostion(glm::vec3(
+		_currentScene->FindObjectByName("Player")->GetGameObject()->GetPosition().x,
+		0.f,
+		_currentScene->FindObjectByName("Player")->GetGameObject()->GetPosition().z
+	));
+	
+	
+	_currentScene->FindObjectByName("Enemy")->GetGameObject()->SetPostion(glm::vec3(
+		_currentScene->FindObjectByName("Enemy")->GetGameObject()->GetPosition().x,
+		0.f,
+		_currentScene->FindObjectByName("Enemy")->GetGameObject()->GetPosition().z
+	));*/
 }
 
 void DefaultSceneLayer::_CreateScene()
@@ -375,7 +389,7 @@ void DefaultSceneLayer::_CreateScene()
 		GameObject::Sptr shadowCaster = scene->CreateGameObject("Shadow Light");
 		{
 			// Set position in the scene
-			shadowCaster->SetPostion(glm::vec3(0.0f, 0.0f, 6.0f));
+			shadowCaster->SetPostion(glm::vec3(1.0f, -5.0f, 6.0f));
 			shadowCaster->LookAt(glm::vec3(0.0f));
 
 			// Create and attach a renderer for the monkey
@@ -478,14 +492,14 @@ void DefaultSceneLayer::_CreateScene()
 			//monkey1->Add<TriggerVolumeEnterBehaviour>();
 		}
 
-		/*GameObject::Sptr enemy = scene->CreateGameObject("Enemy");
+		GameObject::Sptr enemy = scene->CreateGameObject("Enemy");
 		{
 			enemy->SetPostion(glm::vec3(5.3f, 0.f, 4.f));
 			enemy->SetRotation(glm::vec3(0.f, 0.f, 0.f));
 			
-			EnemyMovement::Sptr enemyMovementComponent = enemy->Add<EnemyMovement>(enemy, 1.f, monkey1);
+			EnemyMovement::Sptr enemyMovementComponent = enemy->Add<EnemyMovement>();
 			enemyMovementComponent->GetComponent<EnemyMovement>()->setSelf(enemy);
-			enemyMovementComponent->GetComponent<EnemyMovement>()->setSpeed(1.f);
+			enemyMovementComponent->GetComponent<EnemyMovement>()->setSpeed(2.f);
 			enemyMovementComponent->GetComponent<EnemyMovement>()->setTarget(monkey1);
 
 			RenderComponent::Sptr renderer = enemy->Add<RenderComponent>();
@@ -494,9 +508,9 @@ void DefaultSceneLayer::_CreateScene()
 
 			RigidBody::Sptr physics = enemy->Add<RigidBody>(RigidBodyType::Dynamic);
 			ICollider::Sptr enemyCollider = BoxCollider::Create();
-			enemyCollider->SetScale(glm::vec3(2.f));
+			enemyCollider->SetScale(glm::vec3(1.f));
 			physics->AddCollider(enemyCollider);
-		}*/
+		}
 
 		/*GameObject::Sptr ship = scene->CreateGameObject("Fenrir");
 		{

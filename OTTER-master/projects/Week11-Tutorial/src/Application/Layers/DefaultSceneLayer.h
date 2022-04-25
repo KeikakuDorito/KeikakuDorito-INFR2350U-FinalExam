@@ -18,6 +18,8 @@ public:
 	virtual void OnAppLoad(const nlohmann::json& config) override;
 	virtual void OnUpdate() override;
 
+	//Gameplay::Scene::Sptr _currentScene;
+
 protected:
 	void _CreateScene();
 };
