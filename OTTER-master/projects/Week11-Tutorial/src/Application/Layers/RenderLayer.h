@@ -9,12 +9,15 @@
 
 ENUM_FLAGS(RenderFlags, uint32_t,
 	None = 0,
-	EnableColorCorrection = 1 << 0
+	EnableColorCorrection = 1 << 0,
+	DisableLighting = 1 << 1,
+	EnableSpecular = 1 << 2,
+	EnableAmbient = 1 << 3
 );
 
 class RenderLayer final : public ApplicationLayer {
 public:
-	MAKE_PTRS(RenderLayer); 
+	MAKE_PTRS(RenderLayer);
 
 	// Structure for our frame-level uniforms, matches layout from
 	// fragments/frame_uniforms.glsl
@@ -123,6 +126,7 @@ public:
 	virtual void OnRender(const Framebuffer::Sptr& prevLayer) override;
 	virtual void OnPostRender() override;
 	virtual void OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& newSize) override;
+	virtual void OnUpdate() override;
 
 protected:
 	Framebuffer::Sptr   _primaryFBO;
@@ -150,7 +154,7 @@ protected:
 	UniformBuffer<LightingUboStruct>::Sptr _lightingUbo;
 
 	void _InitFrameUniforms();
-	void _RenderScene(const glm::mat4& view, const glm::mat4&Projection, const glm::ivec2& screenSize);
+	void _RenderScene(const glm::mat4& view, const glm::mat4& Projection, const glm::ivec2& screenSize);
 
 	void _AccumulateLighting();
 	void _Composite();

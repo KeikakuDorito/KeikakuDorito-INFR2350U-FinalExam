@@ -8,6 +8,7 @@
 #include "Gameplay/Components/ComponentManager.h"
 #include "Gameplay/Components/RenderComponent.h"
 #include "Gameplay/Components/Light.h"
+#include "Gameplay/InputEngine.h"
 
 // GLM math library
 #include <GLM/glm.hpp>
@@ -28,10 +29,10 @@ RenderLayer::RenderLayer() :
 	_clearColor({ 0.1f, 0.1f, 0.1f, 1.0f })
 {
 	Name = "Rendering";
-	Overrides = 
-		AppLayerFunctions::OnAppLoad | 
-		AppLayerFunctions::OnPreRender | AppLayerFunctions::OnRender | AppLayerFunctions::OnPostRender | 
-		AppLayerFunctions::OnWindowResize;
+	Overrides =
+		AppLayerFunctions::OnAppLoad |
+		AppLayerFunctions::OnPreRender | AppLayerFunctions::OnRender | AppLayerFunctions::OnPostRender |
+		AppLayerFunctions::OnWindowResize | AppLayerFunctions::OnUpdate;
 }
 
 RenderLayer::~RenderLayer() = default;
@@ -54,7 +55,7 @@ void RenderLayer::OnPreRender()
 	// Clear the framebuffer. Note that this also binds and sets the viewport
 	_ClearFramebuffer(_primaryFBO, colors, 4);
 
-	
+
 	// Grab shorthands to the camera and shader from the scene
 	Camera::Sptr camera = app.CurrentScene()->MainCamera;
 
@@ -90,16 +91,38 @@ void RenderLayer::OnPreRender()
 	_InitFrameUniforms();
 }
 
-void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
+void RenderLayer::OnUpdate() {
+	if (InputEngine::GetKeyState(GLFW_KEY_P) == ButtonState::Pressed) {
+		_renderFlags = RenderFlags::None;
+	}
+
+	if (InputEngine::GetKeyState(GLFW_KEY_1) == ButtonState::Pressed) {
+		_renderFlags = RenderFlags::DisableLighting;
+	}
+
+	if (InputEngine::GetKeyState(GLFW_KEY_2) == ButtonState::Pressed) { //Ambient Only
+		_renderFlags = RenderFlags::EnableAmbient;
+	}
+
+	if (InputEngine::GetKeyState(GLFW_KEY_3) == ButtonState::Pressed) { //Specular Only
+		_renderFlags = RenderFlags::EnableSpecular;
+	}
+
+	if (InputEngine::GetKeyState(GLFW_KEY_4) == ButtonState::Pressed) { //Ambient + Specular
+		_renderFlags = RenderFlags::EnableAmbient | RenderFlags::EnableSpecular;
+	}
+}
+
+void RenderLayer::OnRender(const Framebuffer::Sptr & prevLayer)
 {
 	using namespace Gameplay;
 
 	Application& app = Application::Get();
-	
+
 	// Make sure depth testing and culling are re-enabled
 	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE); 
-	glDepthMask(true); 
+	glEnable(GL_CULL_FACE);
+	glDepthMask(true);
 
 	// Disable blending, we want to override any existing colors
 	glDisable(GL_BLEND);
@@ -113,14 +136,14 @@ void RenderLayer::OnRender(const Framebuffer::Sptr& prevLayer)
 	// Use our cubemap to draw our skybox
 	app.CurrentScene()->DrawSkybox();
 
-	VertexArrayObject::Unbind(); 
+	VertexArrayObject::Unbind();
 }
 
 void RenderLayer::OnPostRender() {
 	using namespace Gameplay;
 
 	// Unbind our G-Buffer
-	_primaryFBO->Unbind(); 
+	_primaryFBO->Unbind();
 
 	// Composite our lighting 
 	_Composite();
@@ -177,10 +200,10 @@ void RenderLayer::_AccumulateLighting()
 	_ClearFramebuffer(_lightingFBO, colors, 2);
 
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 	// Bind our shader for processing lighting 
-	_lightAccumulationShader->Bind(); 
+	_lightAccumulationShader->Bind();
 
 	// Bind our G-Buffer textures so that they're readable
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Depth)->Bind(0);  // depth
@@ -202,7 +225,7 @@ void RenderLayer::_AccumulateLighting()
 		data.Lights[ix].Position = (glm::vec3)(pos) / pos.w;
 		data.Lights[ix].Intensity = light->GetIntensity();
 		data.Lights[ix].Color = light->GetColor();
-		data.Lights[ix].Attenuation = 1.0f / (1.0f + light->GetRadius());  
+		data.Lights[ix].Attenuation = 1.0f / (1.0f + light->GetRadius());
 
 		ix++;
 
@@ -218,7 +241,7 @@ void RenderLayer::_AccumulateLighting()
 
 			ix = 0;
 		}
-	});
+		});
 
 	// If we have lights left over that haven't been drawn, draw them now
 	if (ix > 0) {
@@ -241,7 +264,7 @@ void RenderLayer::_AccumulateLighting()
 		_RenderScene(shadowCam->GetGameObject()->GetInverseTransform(), shadowCam->GetProjection(), shadowCam->GetDepthBuffer()->GetSize());
 
 		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-	});
+		});
 
 	// Restore frame level uniforms
 	_InitFrameUniforms();
@@ -269,7 +292,7 @@ void RenderLayer::_AccumulateLighting()
 		glm::mat4 viewToShadow = shadowCam->GetProjection() * glm::inverse(lightSpaceMatrix);
 
 		// Calculate light's position and direction in view space
-		glm::vec3 lightDirViewSpace = glm::mat3(lightSpaceMatrix) * glm::vec3(0, 0, -1.0f); 
+		glm::vec3 lightDirViewSpace = glm::mat3(lightSpaceMatrix) * glm::vec3(0, 0, -1.0f);
 		glm::vec3 lightPosViewSpace = lightSpaceMatrix * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// Bind depth and projection mask for reading, making sure not to stomp G-Buffer bindings
@@ -279,7 +302,7 @@ void RenderLayer::_AccumulateLighting()
 		}
 
 		//_shadowShader->SetUniformMatrix("u_ClipToShadow", clipToShadow); 
-		_shadowShader->SetUniformMatrix("u_ViewToShadow", viewToShadow); 
+		_shadowShader->SetUniformMatrix("u_ViewToShadow", viewToShadow);
 
 		// Get color and normalize it (strip the alpha)
 		glm::vec4 color = shadowCam->GetColor();
@@ -288,7 +311,7 @@ void RenderLayer::_AccumulateLighting()
 		_shadowShader->SetUniform("u_LightDirViewspace", lightDirViewSpace);
 		_shadowShader->SetUniform("u_ShadowBias", shadowCam->Bias);
 		_shadowShader->SetUniform("u_NormalBias", shadowCam->NormalBias);
-		_shadowShader->SetUniform("u_Attenuation", 1/shadowCam->Range);
+		_shadowShader->SetUniform("u_Attenuation", 1 / shadowCam->Range);
 		_shadowShader->SetUniform("u_Intensity", shadowCam->Intensity);
 		_shadowShader->SetUniform("u_LightColor", (glm::vec3)color);
 		_shadowShader->SetUniform("u_LightPosViewspace", lightPosViewSpace);
@@ -296,7 +319,7 @@ void RenderLayer::_AccumulateLighting()
 
 		// Draw the fullscreen quad to accumulate the lights
 		_fullscreenQuad->Draw();
-	});
+		});
 
 	// Unbind the lighting FBO so we can read its textures
 	_lightingFBO->Unbind();
@@ -326,10 +349,10 @@ void RenderLayer::_Composite()
 	// Bind our albedo and lighting buffers so we can composite a final scene
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(0);
 	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(1);
-	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(2); 
+	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color0)->Bind(2);
 	_lightingFBO->GetTextureAttachment(RenderTargetAttachment::Color1)->Bind(3);
-	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(4);  
-	_fullscreenQuad->Draw(); 
+	_primaryFBO->GetTextureAttachment(RenderTargetAttachment::Color2)->Bind(4);
+	_fullscreenQuad->Draw();
 
 	// Re-enable depth testing
 	glEnable(GL_DEPTH_TEST);
@@ -349,11 +372,11 @@ void RenderLayer::_Composite()
 	_outputBuffer->Unbind();
 }
 
-void RenderLayer::_ClearFramebuffer(Framebuffer::Sptr& buffer, const glm::vec4* colors, int layers) {
+void RenderLayer::_ClearFramebuffer(Framebuffer::Sptr & buffer, const glm::vec4 * colors, int layers) {
 	// Make the entire buffer visible
 	glViewport(0, 0, buffer->GetWidth(), buffer->GetHeight());
 	// Disable depth testing
-	glEnable(GL_DEPTH_TEST); 
+	glEnable(GL_DEPTH_TEST);
 	// Enable depth writing
 	glDepthMask(true);
 	// Disable blending, we want to override the colors
@@ -373,7 +396,7 @@ void RenderLayer::_ClearFramebuffer(Framebuffer::Sptr& buffer, const glm::vec4* 
 	glDepthFunc(GL_LESS);
 }
 
-void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& newSize)
+void RenderLayer::OnWindowResize(const glm::ivec2 & oldSize, const glm::ivec2 & newSize)
 {
 	if (newSize.x * newSize.y == 0) return;
 
@@ -387,7 +410,7 @@ void RenderLayer::OnWindowResize(const glm::ivec2& oldSize, const glm::ivec2& ne
 	app.CurrentScene()->MainCamera->ResizeWindow(newSize.x, newSize.y);
 }
 
-void RenderLayer::OnAppLoad(const nlohmann::json& config)
+void RenderLayer::OnAppLoad(const nlohmann::json & config)
 {
 	Application& app = Application::Get();
 
@@ -411,7 +434,7 @@ void RenderLayer::OnAppLoad(const nlohmann::json& config)
 	fboDescriptor.RenderTargets[RenderTargetAttachment::Color2] = RenderTargetDescriptor(RenderTargetType::ColorRgba8);
 	// Color layer 3 (view space position)  
 	fboDescriptor.RenderTargets[RenderTargetAttachment::Color3] = RenderTargetDescriptor(RenderTargetType::ColorRgba16F);
-	 
+
 	// Create the primary FBO
 	_primaryFBO = std::make_shared<Framebuffer>(fboDescriptor);
 
@@ -462,7 +485,7 @@ void RenderLayer::OnAppLoad(const nlohmann::json& config)
 	_fullscreenQuad = VertexArrayObject::Create();
 	_fullscreenQuad->AddVertexBuffer(vbo, {
 		BufferAttribute(0, 2, AttributeType::Float, sizeof(glm::vec2), 0, AttribUsage::Position)
-	});
+		});
 
 	// Create our common uniform buffers
 	_frameUniforms = std::make_shared<UniformBuffer<FrameLevelUniforms>>(BufferUsage::DynamicDraw);
@@ -538,13 +561,13 @@ void RenderLayer::_InitFrameUniforms()
 	frameData.u_ZFar = camera->GetFarPlane();
 	frameData.u_Viewport = { 0.0f, 0.0f, _primaryFBO->GetWidth(), _primaryFBO->GetHeight() };
 
-	frameData.u_Aperture   = camera->Aperture;
-	frameData.u_LensDepth  = camera->LensDepth;
+	frameData.u_Aperture = camera->Aperture;
+	frameData.u_LensDepth = camera->LensDepth;
 	frameData.u_FocalDepth = camera->FocalDepth;
 	_frameUniforms->Update();
 }
 
-void RenderLayer::_RenderScene(const glm::mat4& view, const glm::mat4& projection, const glm::ivec2& screenSize)
+void RenderLayer::_RenderScene(const glm::mat4 & view, const glm::mat4 & projection, const glm::ivec2 & screenSize)
 {
 	using namespace Gameplay;
 
@@ -608,7 +631,7 @@ void RenderLayer::_RenderScene(const glm::mat4& view, const glm::mat4& projectio
 		// Draw the object
 		renderable->GetMesh()->Draw();
 
-	});
+		});
 
 }
 
