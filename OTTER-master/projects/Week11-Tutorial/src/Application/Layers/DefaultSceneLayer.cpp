@@ -49,6 +49,7 @@
 #include "Gameplay/Components/MaterialSwapBehaviour.h"
 #include "Gameplay/Components/TriggerVolumeEnterBehaviour.h"
 #include "Gameplay/Components/SimpleCameraControl.h"
+#include "Gameplay/Components/EnemyMovement.h"
 
 // Physics
 #include "Gameplay/Physics/RigidBody.h"
@@ -409,12 +410,20 @@ void DefaultSceneLayer::_CreateScene()
 			wall1->Add<RenderComponent>()->SetMesh(wall)->SetMaterial(whiteBrick);
 			wall1->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
 			wall1->SetPostion(glm::vec3(0.0f, 0.0f, 1.5f));
+			RigidBody::Sptr wallPhys1 = wall1->Add<RigidBody>();
+			ICollider::Sptr wall1collider = BoxCollider::Create();
+			wall1collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wallPhys1->AddCollider(wall1collider);
 			plane->AddChild(wall1);
 
 			GameObject::Sptr wall2 = scene->CreateGameObject("Wall2");
 			wall2->Add<RenderComponent>()->SetMesh(wall)->SetMaterial(whiteBrick);
 			wall2->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
 			wall2->SetPostion(glm::vec3(0.0f, 0.f, 12.58));
+			RigidBody::Sptr wallPhys2 = wall2->Add<RigidBody>();
+			ICollider::Sptr wall2collider = BoxCollider::Create();
+			wall2collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wallPhys2->AddCollider(wall2collider);
 			plane->AddChild(wall2);
 
 			GameObject::Sptr wall3 = scene->CreateGameObject("Wall3");
@@ -422,6 +431,10 @@ void DefaultSceneLayer::_CreateScene()
 			wall3->SetScale(glm::vec3(1.0f, 3.07f, 25.25f));
 			wall3->SetPostion(glm::vec3(11.53f, 0.0f, 1.5f));
 			wall3->SetRotation(glm::vec3(0.f, 0.f, -90.f));
+			RigidBody::Sptr wallPhys3 = wall3->Add<RigidBody>();
+			ICollider::Sptr wall3collider = BoxCollider::Create();
+			wall3collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wallPhys3->AddCollider(wall3collider);
 			plane->AddChild(wall3);
 
 			GameObject::Sptr wall4 = scene->CreateGameObject("Wall4");
@@ -429,13 +442,18 @@ void DefaultSceneLayer::_CreateScene()
 			wall4->SetScale(glm::vec3(1.0f, 3.07f, 25.25f));
 			wall4->SetPostion(glm::vec3(-11.66f, 0.0f, 1.5f));
 			wall4->SetRotation(glm::vec3(0.f, 0.f, -90.f));
+			RigidBody::Sptr wallPhys4 = wall4->Add<RigidBody>();
+			ICollider::Sptr wall4collider = BoxCollider::Create();
+			wall4collider->SetScale(glm::vec3(20.0f, 1.0f, 3.0f));
+			wallPhys4->AddCollider(wall4collider);
 			plane->AddChild(wall4);
 		}
 
 		GameObject::Sptr monkey1 = scene->CreateGameObject("Player");
 		{
 			// Set position in the scene
-			monkey1->SetPostion(glm::vec3(1.5f, 0.0f, 1.0f));
+			monkey1->SetPostion(glm::vec3(-5.3f, 0.0f, 4.0f));
+			monkey1->SetRotation(glm::vec3(0.f, 0.f, 180.f));
 
 			// Add some behaviour that relies on the physics body
 			monkey1->Add<JumpBehaviour>();
@@ -445,12 +463,34 @@ void DefaultSceneLayer::_CreateScene()
 			renderer->SetMesh(monkeyMesh);
 			renderer->SetMaterial(monkeyMaterial);
 
-			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
-			TriggerVolume::Sptr trigger = monkey1->Add<TriggerVolume>();
-			trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
-			trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
 
-			monkey1->Add<TriggerVolumeEnterBehaviour>();
+			// Example of a trigger that interacts with static and kinematic bodies as well as dynamic bodies
+			//TriggerVolume::Sptr trigger = monkey1->Add<TriggerVolume>();
+			//trigger->SetFlags(TriggerTypeFlags::Statics | TriggerTypeFlags::Kinematics);
+			RigidBody::Sptr physics = monkey1->Add<RigidBody>(RigidBodyType::Dynamic);
+			ICollider::Sptr playerCollider = BoxCollider::Create();
+			playerCollider->SetScale(glm::vec3(2.f));
+			physics->AddCollider(playerCollider);
+			//trigger->AddCollider(BoxCollider::Create(glm::vec3(1.0f)));
+
+			//monkey1->Add<TriggerVolumeEnterBehaviour>();
+		}
+
+		GameObject::Sptr enemy = scene->CreateGameObject("Enemy");
+		{
+			enemy->SetPostion(glm::vec3(5.3f, 0.f, 4.f));
+			enemy->SetRotation(glm::vec3(0.f, 0.f, 0.f));
+			
+			EnemyMovement::Sptr enemyMovementComponent = enemy->Add<EnemyMovement>(enemy, 1.f, monkey1);
+
+			RenderComponent::Sptr renderer = enemy->Add<RenderComponent>();
+			renderer->SetMesh(monkeyMesh);
+			renderer->SetMaterial(monkeyMaterial);
+
+			RigidBody::Sptr physics = enemy->Add<RigidBody>(RigidBodyType::Dynamic);
+			ICollider::Sptr enemyCollider = BoxCollider::Create();
+			enemyCollider->SetScale(glm::vec3(2.f));
+			physics->AddCollider(enemyCollider);
 		}
 
 		/*GameObject::Sptr ship = scene->CreateGameObject("Fenrir");
